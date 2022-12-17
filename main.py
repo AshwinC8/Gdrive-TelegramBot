@@ -19,7 +19,7 @@ logging.basicConfig(
 
 try:
     # BOT_TOKEN = os.environ["BOT_TOKEN"]
-    BOT_TOKEN = "1045060630:AAETNfpHmDbGv8W3AzE_EO4i9zCNxAXDHws"
+    BOT_TOKEN = "The BOT TOKEN"
 except KeyError:
     logging.error("Bot credentials not found in environment")
     sys.exit("End program with error")
