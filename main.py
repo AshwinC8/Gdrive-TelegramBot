@@ -1,68 +1,38 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+import config
 import logging
-import telegram
-from telegram.error import NetworkError, Unauthorized, TimedOut
-from time import sleep
 import os
-from time import time
-from src.entry import entry
-import sys
-import traceback
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+def start(update, context):
+  context.bot.send_message(chat_id=update.effective_chat.id, text="Hello User, This bot can help you upload the files in the group directly to the google drive.")
 
-try:
-    # BOT_TOKEN = os.environ["BOT_TOKEN"]
-    BOT_TOKEN = "The BOT TOKEN"
-except KeyError:
-    logging.error("Bot credentials not found in environment")
-    sys.exit("End program with error")
 
-# How long the container exist
-LIFESPAN = 7200
+def help(update, context):
+  context.bot.send_message(chat_id=update.effective_chat.id, text="* Upload the file into the chat\n* Login to Google account to upload to drive ")
+
+
+def file_handler(update, context):
+  """handles the uploaded files"""
+  file = context.bot.getFile(update.message.document.file_id)
+
+  cDir = os.getcwd()
+  os.chdir(cDir+"/downloads/")
+  file.download(update.message.document.file_name)
+  os.chdir(cDir+"/../")
+
+  doc = update.message.document
+  filename = doc.file_name
+
+  context.bot.send_message(chat_id=update.effective_chat.id, text="✅ File Downloaded!")
 
 
 def main():
-    """Run the bot."""
-    try:
-        update_id = int(os.environ["UPDATE_ID"])
-    except:
-        update_id = 0
-    bot = telegram.Bot(BOT_TOKEN)
+    updater = Updater(token=config.TOKEN,use_context=True)
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('help', help))
+    dispatcher.add_handler(MessageHandler(Filters.document,file_handler))
+    updater.start_polling()
 
-    while True:
-        try:
-            for update in bot.get_updates(offset=update_id, timeout=10):
-                update_id = update.update_id + 1
-                logging.info(f"Update ID:{update_id}")
-                entry(bot, update)
-        except NetworkError as e:
-            print("Network Error")
-            print(e)
-            traceback.print_exc()
-            # logging.error(update)
-            sleep(1)
-        except Unauthorized:
-            print("Unauthorized")
-            logging.error(update)
-            # The user has removed or blocked the bot.
-            update_id += 1
-        except TimedOut:
-            logging.error("Timeout")
-            traceback.print_exc()
-            sleep(5)
-        except Exception as e:
-            logging.error("Generic Error")
-            logging.error(e)
-            traceback.print_exc()
-            sleep(5)
-            sys.exit("End program with error")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
