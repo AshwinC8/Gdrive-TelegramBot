@@ -4,9 +4,8 @@
 A telegram bot which sends files sent to it, into your personal google drive.
 
 ## Screenshots
-```
+![screenshot](screenshots/Screenshot1.png)
 
-```
 
 ## Technologies
 Used the Python, Google drive api and python-telgram-bot package.
