@@ -1,1 +1,1 @@
-TOKEN = "BOT TOKEN"
+TOKEN = "bot token from botmaster"
